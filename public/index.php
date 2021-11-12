@@ -30,4 +30,7 @@ $router->post("/login", "LoginAPI::auth")->dir("Api");
 // home
 $router->get("/", "PetAPI::index")->dir("Api");
 
+// pets
+$router->post("/pet", "PetAPI::create")->dir("Api");
+
 $router->dispatch();
