@@ -5,6 +5,7 @@ require_once "config.php";
 
 use App\Migrations\User;
 use App\Migrations\Pet;
+use App\Migrations\Image;
 
 $options = getopt('', [
     "table:", "method:"
@@ -25,6 +26,14 @@ $migrations = [
         },
         "down"=> function() {
             call_user_func([new Pet, "down"]);
+        }
+    ],
+    "images"=> [
+        "up"=> function() {
+            call_user_func([new Image, "up"]);
+        },
+        "down"=> function() {
+            call_user_func([new Image, "down"]);
         }
     ]
 ];
