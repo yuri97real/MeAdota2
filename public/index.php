@@ -24,4 +24,7 @@ $router->get("/error/{code}", "ErrorController::index");
 // create user
 $router->post("/user", "UserAPI::create")->dir("Api");
 
+// login
+$router->post("/login", "LoginAPI::auth")->dir("Api");
+
 $router->dispatch();

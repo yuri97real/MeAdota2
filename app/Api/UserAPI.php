@@ -16,15 +16,22 @@ class UserAPI {
 
         $capsule = (new Model)->getCapsule();
 
-        $users = $capsule::table('users')->insert([
-            "name"=> $name,
-            "email"=> $email,
-            "password"=> $password
-        ]);
-
-        $res->json([
-            "result"=> $users
-        ]);
+        try {
+            $capsule::table('users')->insert([
+                "name"=> $name,
+                "email"=> $email,
+                "password"=> $password
+            ]);
+    
+            $res->json([
+                "success"=> true
+            ]);
+        } catch(Exception $e) {
+            $res->json([
+                "success"=> false,
+                "info"=> $e
+            ]);
+        }
     }
 
 }
