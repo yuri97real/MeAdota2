@@ -27,4 +27,7 @@ $router->post("/user", "UserAPI::create")->dir("Api");
 // login
 $router->post("/login", "LoginAPI::auth")->dir("Api");
 
+// home
+$router->get("/", "PetAPI::index")->dir("Api");
+
 $router->dispatch();
