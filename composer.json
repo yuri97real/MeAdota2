@@ -1,0 +1,16 @@
+{
+    "authors": [
+        {
+            "name": "Yuri Seabra da Silva",
+            "email": "yuri97real@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "illuminate/database": "^8.70"
+    }
+}
