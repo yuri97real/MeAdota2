@@ -11,7 +11,7 @@ $options = getopt('', [
 ]);
 
 $migrations = [
-    "user"=> [
+    "users"=> [
         "up"=> function() {
             call_user_func([new User, "up"]);
         },
@@ -19,7 +19,7 @@ $migrations = [
             call_user_func([new User, "down"]);
         }
     ],
-    "pet"=> [
+    "pets"=> [
         "up"=> function() {
             call_user_func([new Pet, "up"]);
         },
@@ -31,10 +31,14 @@ $migrations = [
 
 extract($options);
 
+if(!isset($migrations[$table])) {
+    die("Invalid Table!");
+}
+
 if(!isset($migrations[$table][$method])) {
     die("Invalid Method!");
 }
 
 $migrations[$table][$method]();
 
-echo "{$table} is {$method}!";
+echo "Table '{$table}' is {$method}!";
