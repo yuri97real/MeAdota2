@@ -22,6 +22,7 @@ class PetAPI {
         $pets = $capsule::table('pets')
             ->skip($offset)
             ->take($limit)
+            ->orderBy("id", "desc")
             ->get();
 
         $res->json([
