@@ -54,7 +54,7 @@ class PetAPI {
 
         $images = $capsule::table("images")->where([
             "pet_id"=> $pet_id
-        ])->first();
+        ])->limit(3)->get();
 
         $res->json([
             "pet"=> $pet,

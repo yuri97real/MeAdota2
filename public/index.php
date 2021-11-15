@@ -34,4 +34,7 @@ $router->get("/", "PetAPI::index")->dir("Api");
 $router->post("/pet", "PetAPI::create")->dir("Api");
 $router->get("/pet/{pet_id}", "PetAPI::show")->dir("Api");
 
+// images
+$router->post("/image/{pet_id}", "ImageAPI::create")->dir("Api");
+
 $router->dispatch();
