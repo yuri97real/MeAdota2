@@ -21,7 +21,7 @@ $router = new App\Core\Router;
 $router->get("/error", "ErrorController::index");
 $router->get("/error/{code}", "ErrorController::index");
 
-// create user
+// users
 $router->post("/user", "UserAPI::create")->dir("Api");
 
 // login
@@ -32,5 +32,6 @@ $router->get("/", "PetAPI::index")->dir("Api");
 
 // pets
 $router->post("/pet", "PetAPI::create")->dir("Api");
+$router->get("/pet/{pet_id}", "PetAPI::show")->dir("Api");
 
 $router->dispatch();

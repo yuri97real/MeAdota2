@@ -31,6 +31,38 @@ class PetAPI {
         ]);
     }
 
+    public function show(iRequest $req, iResponse $res)
+    {
+        $pet_id = $req->params()->pet_id;
+
+        $capsule = (new Model)->getCapsule();
+
+        $pet = $capsule::table("pets")->where([
+            "id"=> $pet_id
+        ])->first();
+
+        if(!$pet) $res->json([
+            "success"=> false,
+            "message"=> "Pet Not Found!"
+        ]);
+
+        $owner = $capsule::table("users")->where([
+            "id"=> $pet->owner_id
+        ])->first([
+            "id", "name", "email", "profile"
+        ]);
+
+        $images = $capsule::table("images")->where([
+            "pet_id"=> $pet_id
+        ])->first();
+
+        $res->json([
+            "pet"=> $pet,
+            "owner"=> $owner,
+            "images"=> $images
+        ]);
+    }
+
     public function create(iRequest $req, iResponse $res)
     {
         $jwt = $req->authorization();
