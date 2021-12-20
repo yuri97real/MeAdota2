@@ -5,7 +5,7 @@ namespace App\Core;
 use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-class Model {
+abstract class Model {
 
     private $capsule;
 

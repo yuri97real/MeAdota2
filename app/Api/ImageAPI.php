@@ -2,66 +2,83 @@
 
 use App\Core\iRequest;
 use App\Core\iResponse;
-use App\Core\Model;
+
+use App\Models\ImageModel;
+use App\Models\PetModel;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class ImageAPI {
 
-    public function create(iRequest $req, iResponse $res)
+    public function create(iRequest $request, iResponse $response)
     {
-        $jwt = $req->authorization();
+        $jwt = $request->authorization();
         $jwt = str_replace("Bearer ", "", $jwt);
 
         try {
 
-            JWT::decode($jwt, new Key(JWT_KEY, 'HS256'));
+            $user = JWT::decode($jwt, new Key(JWT_KEY, 'HS256'));
 
-            if(!isset($_FILES["images"])) $res->json([
+            if(!isset($_FILES["images"])) $response->json([
                 "success"=> false,
-                "message"=> "File Not Uploaded!"
+                "message"=> "Arquivo não selecionado!"
             ]);
 
-            $pet_id = $req->params()->pet_id;
+            $pet_id = $request->params()->pet_id;
+            $pet = (new PetModel)->getPetByID($pet_id);
+
+            if($pet->owner_id != $user->id) $response->json([
+                "success"=> false,
+                "message"=> "Esse pet não lhe pertence!",
+            ]);
+
             $filename = $this->cutAndSaveImage();
 
-            $capsule = (new Model)->getCapsule();
-
-            $capsule::table("images")->insert([
-                "image"=> $filename,
-                "pet_id"=> $pet_id
+            if($filename == "") $response->json([
+                "success"=> false,
+                "message"=> "Não foi possível salvar a imagem!",
             ]);
 
-            $res->json([
-                "filename"=> $filename
-            ]);
+            $result = (new ImageModel)->insertImage($filename, $pet_id);
+
+            $response->json($result);
 
         } catch(Exception $e) {
 
-            $res->status(409)->json([
+            $response->status(409)->json([
                 "success"=> false,
-                "info"=> $e
+                "info"=> $e,
             ]);
 
         }
     }
 
-    private function cutAndSaveImage()
+    private function cutAndSaveImage(): string
     {
-        $imagine = new Imagine\Gd\Imagine();
+        try {
 
-        $size = new Imagine\Image\Box(500, 500);
+            $imagine = new Imagine\Gd\Imagine();
 
-        $mode = Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
+            $size = new Imagine\Image\Box(500, 500);
 
-        $filename = date("d_m_y_H_i_s") . ".jpeg";
+            $mode = Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
 
-        $imagine->open($_FILES['images']['tmp_name'])
-                ->thumbnail($size, $mode)
-                ->save(ROOT . '/public/images/uploads/' . $filename)
-        ;
+            $filename = date("d_m_y_H_i_s") . ".jpeg";
 
-        return $filename;
+            $imagine->open($_FILES['images']['tmp_name'])
+                    ->thumbnail($size, $mode)
+                    ->save(ROOT . '/public/images/uploads/' . $filename)
+            ;
+
+            return $filename;
+
+        } catch(Exception $e) {
+
+            return "";
+
+        }
+
     }
 
 }

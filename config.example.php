@@ -1,8 +1,10 @@
 <?php
 
-#paths
+# paths
 define("ROOT", __DIR__);
-#database
+# jwt
+define("JWT_KEY", "123456");
+# database
 define("DB_CONFIG", [
     "driver" => "mysql",
     "host" => "localhost",

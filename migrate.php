@@ -8,46 +8,27 @@ use App\Migrations\Pet;
 use App\Migrations\Image;
 
 $options = getopt('', [
-    "table:", "method:"
+    "method:",
 ]);
 
 $migrations = [
-    "users"=> [
-        "up"=> function() {
-            call_user_func([new User, "up"]);
-        },
-        "down"=> function() {
-            call_user_func([new User, "down"]);
-        }
-    ],
-    "pets"=> [
-        "up"=> function() {
-            call_user_func([new Pet, "up"]);
-        },
-        "down"=> function() {
-            call_user_func([new Pet, "down"]);
-        }
-    ],
-    "images"=> [
-        "up"=> function() {
-            call_user_func([new Image, "up"]);
-        },
-        "down"=> function() {
-            call_user_func([new Image, "down"]);
-        }
-    ]
+    "users"=> new User,
+    "pets"=> new Pet,
+    "images"=> new Image,
 ];
 
 extract($options);
 
-if(!isset($migrations[$table])) {
-    die("Invalid Table!");
+if(!in_array($method, ["up", "down"])) {
+    die("Method is not valid!");
 }
 
-if(!isset($migrations[$table][$method])) {
-    die("Invalid Method!");
+if($method == "down") {
+    $migrations = array_reverse($migrations);
 }
 
-$migrations[$table][$method]();
+foreach($migrations as $migration) {
 
-echo "Table '{$table}' is {$method}!";
+    call_user_func([$migration, $method]);
+
+}

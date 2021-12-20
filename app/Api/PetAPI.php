@@ -2,93 +2,72 @@
 
 use App\Core\iRequest;
 use App\Core\iResponse;
-use App\Core\Model;
+
+use App\Models\PetModel;
+use App\Models\UserModel;
+use App\Models\ImageModel;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class PetAPI {
 
-    public function index(iRequest $req, iResponse $res)
+    public function index(iRequest $request, iResponse $response)
     {
-        $capsule = (new Model)->getCapsule();
-
-        $page = $req->query()->page ?? 1;
+        $page = $request->query()->page ?? 1;
         $page = $page > 0 ? $page : 1;
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
 
-        $pets = $capsule::table('pets')
-            ->skip($offset)
-            ->take($limit)
-            ->orderBy("id", "desc")
-            ->get();
+        $pets = (new PetModel)->selectPets($offset, $limit);
 
-        $res->json([
+        $response->json([
             "pets"=> $pets,
-            "page"=> $page
+            "page"=> $page,
         ]);
     }
 
-    public function show(iRequest $req, iResponse $res)
+    public function show(iRequest $request, iResponse $response)
     {
-        $pet_id = $req->params()->pet_id;
+        $pet_id = $request->params()->pet_id;
 
-        $capsule = (new Model)->getCapsule();
+        $pet = (new PetModel)->getPetByID($pet_id);
 
-        $pet = $capsule::table("pets")->where([
-            "id"=> $pet_id
-        ])->first();
-
-        if(!$pet) $res->json([
+        if(!$pet) $response->json([
             "success"=> false,
-            "message"=> "Pet Not Found!"
+            "message"=> "Pet Not Found!",
         ]);
 
-        $owner = $capsule::table("users")->where([
-            "id"=> $pet->owner_id
-        ])->first([
-            "id", "name", "email", "profile"
-        ]);
+        $owner = (new UserModel)->getUserBy("id", $pet->owner_id);
 
-        $images = $capsule::table("images")->where([
-            "pet_id"=> $pet_id
-        ])->limit(3)->get();
+        $images = (new ImageModel)->getImageByPetID($pet_id);
 
-        $res->json([
+        $response->json([
             "pet"=> $pet,
             "owner"=> $owner,
-            "images"=> $images
+            "images"=> $images,
         ]);
     }
 
-    public function create(iRequest $req, iResponse $res)
+    public function create(iRequest $request, iResponse $response)
     {
-        $jwt = $req->authorization();
+        $jwt = $request->authorization();
         $jwt = str_replace("Bearer ", "", $jwt);
 
         try {
 
             $decoded = JWT::decode($jwt, new Key(JWT_KEY, 'HS256'));
-            $capsule = (new Model)->getCapsule();
 
-            $capsule::table('pets')->insert([
-                "name"=> $req->body()->name,
-                "birth"=> $req->body()->birth,
-                "species"=> $req->body()->species,
-                "owner_id"=> $decoded->id
-            ]);
+            $result = (new PetModel)->insertPet($decoded->id, $request->body());
 
-            $res->json([
-                "success"=> true
-            ]);
+            $response->json($result);
 
         } catch(Exception $e) {
 
-            $res->status(409)->json([
+            $response->status(409)->json([
                 "success"=> false,
-                "info"=> $e
+                "info"=> $e,
             ]);
 
         }

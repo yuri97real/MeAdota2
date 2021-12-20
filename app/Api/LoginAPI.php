@@ -2,44 +2,42 @@
 
 use App\Core\iRequest;
 use App\Core\iResponse;
-use App\Core\Model;
+
+use App\Models\UserModel;
+
 use Firebase\JWT\JWT;
 
 class LoginAPI {
 
-    public function auth(iRequest $req, iResponse $res)
+    public function auth(iRequest $request, iResponse $response)
     {
-        $email = $req->body()->email;
-        $password = $req->body()->password;
+        $body = $request->body();
 
-        $errorDefault = [
-            "success"=> false
+        $genericErrorMessage = [
+            "success"=> false,
+            "message"=> "Usuário e/ou senha inválidos!",
         ];
 
-        $capsule = (new Model)->getCapsule();
+        $user = (new UserModel)->getUserBy("email", $body->email, true);
 
-        $user = $capsule::table('users')->where([
-            "email"=> $email
-        ])->first();
+        if(!$user) $response->json($genericErrorMessage);
 
-        if(!$user) $res->json($errorDefault);
+        $equals = password_verify($body->password, $user->password);
 
-        $equals = password_verify($password, $user->password);
-
-        if(!$equals) $res->json($errorDefault);
+        if(!$equals) $response->json($genericErrorMessage);
 
         $payload = [
             "id"=> $user->id,
             "name"=> $user->name,
             "email"=> $user->email,
-            "ip"=> $_SERVER["REMOTE_ADDR"]
+            "ip"=> $_SERVER["REMOTE_ADDR"],
         ];
 
         $jwt = JWT::encode($payload, JWT_KEY, 'HS256');
 
-        $res->json([
+        $response->json([
             "success"=> true,
-            "token"=> $jwt
+            "token"=> $jwt,
         ]);
     }
 

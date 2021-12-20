@@ -2,36 +2,21 @@
 
 use App\Core\iRequest;
 use App\Core\iResponse;
-use App\Core\Model;
+
+use App\Models\UserModel;
 
 class UserAPI {
 
-    public function create(iRequest $req, iResponse $res)
+    public function create(iRequest $request, iResponse $response)
     {
-        $name = $req->body()->name;
-        $email = $req->body()->email;
-        $password = $req->body()->password;
+        $body = $request->body();
+        $body->password = password_hash(
+            $body->password, PASSWORD_DEFAULT
+        );
 
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        $result = (new UserModel)->insertUser($body);
 
-        $capsule = (new Model)->getCapsule();
-
-        try {
-            $capsule::table('users')->insert([
-                "name"=> $name,
-                "email"=> $email,
-                "password"=> $password
-            ]);
-    
-            $res->json([
-                "success"=> true
-            ]);
-        } catch(Exception $e) {
-            $res->json([
-                "success"=> false,
-                "info"=> $e
-            ]);
-        }
+        $response->json($result);
     }
 
 }
