@@ -64,12 +64,20 @@ class ImageAPI {
 
             $mode = Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
 
-            $filename = date("d_m_y_H_i_s") . ".jpeg";
+            $reverse_tmp_names = array_slice($_FILES['images']['tmp_name'], 0, 3);
+            $reverse_tmp_names = array_reverse($reverse_tmp_names);
 
-            $imagine->open($_FILES['images']['tmp_name'])
-                    ->thumbnail($size, $mode)
-                    ->save(ROOT . '/public/images/uploads/' . $filename)
-            ;
+            $filename = "";
+
+            foreach($reverse_tmp_names as $index => $tmp_name) {
+
+                $filename = date("d_m_y_H_i_s") . "_{$index}.jpg";
+
+                $imagine->open($tmp_name)
+                        ->thumbnail($size, $mode)
+                        ->save(ROOT . '/public/images/uploads/' . $filename);
+                
+            }
 
             return $filename;
 
