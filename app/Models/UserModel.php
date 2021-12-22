@@ -48,4 +48,15 @@ class UserModel extends Model {
         ])->first($fields);
     }
 
+    public function updateUser(int $user_id, array $values)
+    {
+        $capsule = $this->getCapsule();
+
+        $affected = $capsule->table('users')
+            ->where(["id"=> $user_id])
+            ->update($values);
+
+        return $affected;
+    }
+
 }

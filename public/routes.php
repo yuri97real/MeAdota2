@@ -8,6 +8,7 @@ $router->get("/error/{code}", "ErrorController::index");
 
 // users
 $router->post("/user", "UserAPI::create")->dir("Api");
+$router->put("/user", "UserAPI::update")->dir("Api");
 
 // login
 $router->post("/login", "LoginAPI::auth")->dir("Api");
