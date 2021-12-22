@@ -48,8 +48,17 @@ class PetModel extends Model {
         $capsule = $this->getCapsule();
 
         return $capsule::table("pets")->where([
-            "id"=> $pet_id
+            "id"=> $pet_id,
         ])->first();
+    }
+
+    public function getPetsByOwnerID(int $owner_id)
+    {
+        $capsule = $this->getCapsule();
+
+        return $capsule::table("pets")->where([
+            "owner_id"=> $owner_id,
+        ])->take(10)->get();
     }
 
 }

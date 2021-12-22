@@ -33,14 +33,14 @@ class ImageAPI {
                 "message"=> "Esse pet não lhe pertence!",
             ]);
 
-            $filename = $this->cutAndSaveImage();
+            $files = $this->cutAndSaveImage();
 
-            if($filename == "") $response->json([
+            if(empty($files)) $response->json([
                 "success"=> false,
                 "message"=> "Não foi possível salvar a imagem!",
             ]);
 
-            $result = (new ImageModel)->insertImage($filename, $pet_id);
+            $result = (new ImageModel)->insertImage($files, $pet_id);
 
             $response->json($result);
 
@@ -54,7 +54,7 @@ class ImageAPI {
         }
     }
 
-    private function cutAndSaveImage(): string
+    private function cutAndSaveImage(): array
     {
         try {
 
@@ -67,11 +67,13 @@ class ImageAPI {
             $reverse_tmp_names = array_slice($_FILES['images']['tmp_name'], 0, 3);
             $reverse_tmp_names = array_reverse($reverse_tmp_names);
 
-            $filename = "";
+            $files = [];
 
             foreach($reverse_tmp_names as $index => $tmp_name) {
 
                 $filename = date("d_m_y_H_i_s") . "_{$index}.jpg";
+
+                $files[] = $filename;
 
                 $imagine->open($tmp_name)
                         ->thumbnail($size, $mode)
@@ -79,11 +81,11 @@ class ImageAPI {
                 
             }
 
-            return $filename;
+            return $files;
 
         } catch(Exception $e) {
 
-            return "";
+            return [];
 
         }
 

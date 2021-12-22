@@ -13,7 +13,7 @@ class UserModel extends Model {
 
         try {
 
-            $capsule::table('users')->insert([
+            $capsule::table("users")->insert([
                 "name"=> $user->name,
                 "email"=> $user->email,
                 "password"=> $user->password,
@@ -57,6 +57,17 @@ class UserModel extends Model {
             ->update($values);
 
         return $affected;
+    }
+
+    public function deleteUser(int $user_id)
+    {
+        $capsule = $this->getCapsule();
+
+        $deleted = $capsule->table("users")
+            ->where(["id"=> $user_id])
+            ->delete();
+
+        return $deleted;
     }
 
 }

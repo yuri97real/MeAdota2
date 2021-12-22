@@ -4,6 +4,8 @@ use App\Core\iRequest;
 use App\Core\iResponse;
 
 use App\Models\UserModel;
+use App\Models\ImageModel;
+use App\Models\PetModel;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -75,6 +77,41 @@ class UserAPI {
 
         }
 
+    }
+
+    public function destroy(iRequest $request, iResponse $response)
+    {
+        $jwt = $request->authorization();
+        $jwt = str_replace("Bearer ", "", $jwt);
+
+        $decoded = JWT::decode($jwt, new Key(JWT_KEY, 'HS256'));
+
+        $pets = (new PetModel)->getPetsByOwnerID($decoded->id);
+
+        $imageModel = new ImageModel();
+
+        foreach($pets as $pet) {
+
+            $images = $imageModel->getImageByPetID($pet->id);
+
+            foreach($images as $imageData) {
+
+                $filename = ROOT."/public/images/uploads/{$imageData->image}";
+                
+                if(!file_exists($filename)) continue;
+
+                unlink($filename);
+
+            }
+
+        }
+
+        $deleted = (new UserModel)->deleteUser($decoded->id);
+
+        $response->json([
+            "succes"=> true,
+            "deleted"=> $deleted,
+        ]);
     }
 
 }

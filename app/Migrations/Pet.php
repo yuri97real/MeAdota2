@@ -5,19 +5,13 @@ namespace App\Migrations;
 use App\Core\Model;
 use Illuminate\Database\Schema\Blueprint;
 
-class Pet {
-
-    private $schema;
-
-    public function __construct()
-    {
-        $capsule = (new Model)->getCapsule();
-        $this->schema = $capsule::schema();
-    }
+class Pet extends Model {
 
     public function up()
     {
-        $this->schema->create('pets', function (Blueprint $table) {
+        $capsule = $this->getCapsule();
+
+        $capsule::schema()->create('pets', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->date('birth');
@@ -36,7 +30,8 @@ class Pet {
 
     public function down()
     {
-        $this->schema->dropIfExists('pets');
+        $capsule = $this->getCapsule();
+        $capsule::schema()->dropIfExists('pets');
     }
 
 }

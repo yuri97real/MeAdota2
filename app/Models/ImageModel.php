@@ -16,20 +16,26 @@ class ImageModel extends Model {
         ])->limit(3)->get();
     }
 
-    public function insertImage(string $filename, int $pet_id)
+    public function insertImage(array $files, int $pet_id)
     {
         try {
 
             $capsule = $this->getCapsule();
 
-            $capsule::table("images")->insert([
-                "image"=> $filename,
-                "pet_id"=> $pet_id,
-            ]);
+            $images = [];
+
+            foreach($files as $file) {
+                $images[] = [
+                    "image"=> $file,
+                    "pet_id"=> $pet_id,
+                ];
+            }
+
+            $capsule::table("images")->insert($images);
 
             return [
                 "success"=> true,
-                "filename"=> $filename,
+                "files"=> $files,
             ];
 
         } catch(Exception $e) {

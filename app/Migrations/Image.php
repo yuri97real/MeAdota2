@@ -5,19 +5,13 @@ namespace App\Migrations;
 use App\Core\Model;
 use Illuminate\Database\Schema\Blueprint;
 
-class Image {
-
-    private $schema;
-
-    public function __construct()
-    {
-        $capsule = (new Model)->getCapsule();
-        $this->schema = $capsule::schema();
-    }
+class Image extends Model {
 
     public function up()
     {
-        $this->schema->create('images', function (Blueprint $table) {
+        $capsule = $this->getCapsule();
+
+        $capsule::schema()->create('images', function (Blueprint $table) {
             $table->increments('id');
             $table->string('image');
             $table->integer('pet_id')->unsigned();
@@ -34,7 +28,8 @@ class Image {
 
     public function down()
     {
-        $this->schema->dropIfExists('images');
+        $capsule = $this->getCapsule();
+        $capsule::schema()->dropIfExists('images');
     }
 
 }
